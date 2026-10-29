@@ -248,6 +248,80 @@ public:
 template <typename T>
 const double matrix<T>::k_epsilon = 1e-9;
 
+template <typename T>
+matrix<T> operator*(const T& scalar, const matrix<T>& m) {
+    return m * scalar;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const matrix<T>& m) {
+    for (std::size_t i = 0; i < m.get_rows(); ++i) {
+        for (std::size_t j = 0; j < m.get_cols(); ++j) {
+            os << m(i, j);
+            if (j + 1 < m.get_cols()) {
+                os << ' ';
+            }
+        }
+        os << '\n';
+    }
+    return os;
+}
+
+// ---------- Задача №2: обратная матрица 3x3 ----------
+
+template <typename T>
+T determinant_3x3(const matrix<T>& m) {
+    return m(0, 0) * (m(1, 1) * m(2, 2) - m(1, 2) * m(2, 1))
+         - m(0, 1) * (m(1, 0) * m(2, 2) - m(1, 2) * m(2, 0))
+         + m(0, 2) * (m(1, 0) * m(2, 1) - m(1, 1) * m(2, 0));
+}
+
+template <typename T>
+bool is_zero_value(const T& value) {
+    if (is_complex<T>::value) {
+        return std::abs(value) < matrix<T>::k_epsilon;
+    }
+    if (std::is_floating_point<T>::value) {
+        return std::abs(value) < matrix<T>::k_epsilon;
+    }
+    return value == T(0);
+}
+
+template <typename T>
+matrix<T> inverse_3x3(const matrix<T>& m) {
+    if (m.get_rows() != 3 || m.get_cols() != 3) {
+        throw std::invalid_argument("Inverse is implemented only for 3x3 matrices");
+    }
+
+    T det = determinant_3x3(m);
+    if (is_zero_value(det)) {
+        throw std::invalid_argument("Matrix is singular and has no inverse");
+    }
+
+    matrix<T> cofactors(3, 3, T(0));
+
+    cofactors(0, 0) = m(1, 1) * m(2, 2) - m(1, 2) * m(2, 1);
+    cofactors(0, 1) = -(m(1, 0) * m(2, 2) - m(1, 2) * m(2, 0));
+    cofactors(0, 2) = m(1, 0) * m(2, 1) - m(1, 1) * m(2, 0);
+
+    cofactors(1, 0) = -(m(0, 1) * m(2, 2) - m(0, 2) * m(2, 1));
+    cofactors(1, 1) = m(0, 0) * m(2, 2) - m(0, 2) * m(2, 0);
+    cofactors(1, 2) = -(m(0, 0) * m(2, 1) - m(0, 1) * m(2, 0));
+
+    cofactors(2, 0) = m(0, 1) * m(1, 2) - m(0, 2) * m(1, 1);
+    cofactors(2, 1) = -(m(0, 0) * m(1, 2) - m(0, 2) * m(1, 0));
+    cofactors(2, 2) = m(0, 0) * m(1, 1) - m(0, 1) * m(1, 0);
+
+    matrix<T> adjugate(3, 3, T(0));
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            adjugate(j, i) = cofactors(i, j);
+        }
+    }
+
+    return adjugate / det;
+}
+
 int main() {
     return 0;
 }
