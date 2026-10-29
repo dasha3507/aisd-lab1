@@ -323,5 +323,76 @@ matrix<T> inverse_3x3(const matrix<T>& m) {
 }
 
 int main() {
+    std::cout << "=== Matrix demonstration ===\n";
+
+    matrix<double> empty;
+    std::cout << "Empty matrix: rows = " << empty.get_rows() 
+              << ", cols = " << empty.get_cols() << "\n\n";
+
+    matrix<double> filled(3, 3, 1.5);
+    std::cout << "Filled:\n" << filled;
+
+    matrix<double> random_matrix(3, 3, -5.0, 5.0);
+    std::cout << "Random (rows=" << random_matrix.get_rows() 
+              << ", cols=" << random_matrix.get_cols() << "):\n" << random_matrix;
+
+    matrix<double> copy_matrix(random_matrix);
+    std::cout << "Copy of random:\n" << copy_matrix;
+
+    matrix<double> assigned_matrix;
+    assigned_matrix = random_matrix;
+    std::cout << "Assigned copy:\n" << assigned_matrix;
+
+    matrix<double> a(3, 3, 1.0);
+    matrix<double> b(3, 3, 2.0);
+    std::cout << "A + B:\n" << (a + b);
+    std::cout << "A - B:\n" << (a - b);
+    std::cout << "A * B:\n" << (a * b);
+    std::cout << "A * 2.0:\n" << (a * 2.0);
+    std::cout << "2.0 * A:\n" << (2.0 * a);
+    std::cout << "A / 2.0:\n" << (a / 2.0);
+
+    matrix<double> c = a;
+    c += b;
+    std::cout << "A += B:\n" << c;
+
+    c = a;
+    c -= b;
+    std::cout << "A -= B:\n" << c;
+
+    c = b;
+    c *= 3.0;
+    std::cout << "B *= 3.0:\n" << c;
+
+    c = b;
+    c /= 2.0;
+    std::cout << "B /= 2.0:\n" << c;
+
+    std::cout << "Trace(A): " << a.trace() << "\n";
+
+    std::cout << "A == B? " << (a == b ? "yes" : "no") << "\n";
+    std::cout << "A != B? " << (a != b ? "yes" : "no") << "\n\n";
+
+    // Задача: обратная матрица
+    std::cout << "=== Inverse 3x3 ===\n";
+    std::cout << "Original A:\n" << random_matrix;
+    try {
+        matrix<double> inv = inverse_3x3(random_matrix);
+        std::cout << "A^-1:\n" << inv;
+        std::cout << "A * A^-1:\n" << (random_matrix * inv);
+    } catch (const std::exception& ex) {
+        std::cout << "Error: " << ex.what() << "\n";
+    }
+
+    matrix<double> singular(3, 3, 0.0);
+    singular(0, 0) = 1; singular(0, 1) = 2; singular(0, 2) = 3;
+    singular(1, 0) = 4; singular(1, 1) = 5; singular(1, 2) = 6;
+    singular(2, 0) = 7; singular(2, 1) = 8; singular(2, 2) = 9;
+    try {
+        matrix<double> inv = inverse_3x3(singular);
+    } catch (const std::exception& ex) {
+        std::cout << "Singular matrix: " << ex.what() << "\n";
+    }
+
     return 0;
 }
