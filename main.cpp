@@ -154,6 +154,95 @@ public:
     bool operator!=(const matrix& other) const {
         return !(*this == other);
     }
+
+        // Арифметика с присваиванием
+    matrix& operator+=(const matrix& other) {
+        if (rows_ != other.rows_ || cols_ != other.cols_) {
+            throw std::invalid_argument("Matrix dimensions must be equal");
+        }
+        for (std::size_t i = 0; i < rows_ * cols_; ++i) {
+            data_[i] += other.data_[i];
+        }
+        return *this;
+    }
+
+    matrix& operator-=(const matrix& other) {
+        if (rows_ != other.rows_ || cols_ != other.cols_) {
+            throw std::invalid_argument("Matrix dimensions must be equal");
+        }
+        for (std::size_t i = 0; i < rows_ * cols_; ++i) {
+            data_[i] -= other.data_[i];
+        }
+        return *this;
+    }
+
+    matrix& operator*=(const T& scalar) {
+        for (std::size_t i = 0; i < rows_ * cols_; ++i) {
+            data_[i] *= scalar;
+        }
+        return *this;
+    }
+
+    matrix& operator/=(const T& scalar) {
+        if (is_zero(scalar)) {
+            throw std::invalid_argument("Division by zero");
+        }
+        for (std::size_t i = 0; i < rows_ * cols_; ++i) {
+            data_[i] /= scalar;
+        }
+        return *this;
+    }
+
+    // Бинарная арифметика
+    matrix operator+(const matrix& other) const {
+        matrix result(*this);
+        result += other;
+        return result;
+    }
+
+    matrix operator-(const matrix& other) const {
+        matrix result(*this);
+        result -= other;
+        return result;
+    }
+
+    matrix operator*(const matrix& other) const {
+        if (cols_ != other.rows_) {
+            throw std::invalid_argument("Matrix dimensions are incompatible");
+        }
+        matrix result(rows_, other.cols_, T(0));
+        for (std::size_t i = 0; i < rows_; ++i) {
+            for (std::size_t k = 0; k < cols_; ++k) {
+                for (std::size_t j = 0; j < other.cols_; ++j) {
+                    result(i, j) += (*this)(i, k) * other(k, j);
+                }
+            }
+        }
+        return result;
+    }
+
+    matrix operator*(const T& scalar) const {
+        matrix result(*this);
+        result *= scalar;
+        return result;
+    }
+
+    matrix operator/(const T& scalar) const {
+        matrix result(*this);
+        result /= scalar;
+        return result;
+    }
+
+    T trace() const {
+        if (rows_ != cols_) {
+            throw std::invalid_argument("Trace is defined only for square matrices");
+        }
+        T sum = T(0);
+        for (std::size_t i = 0; i < rows_; ++i) {
+            sum += (*this)(i, i);
+        }
+        return sum;
+    }
 };
 
 template <typename T>
